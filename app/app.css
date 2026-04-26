@@ -172,6 +172,5 @@ body {
   html {
     scrollbar-width: thin;
     scrollbar-color: hsl(240 5.9% 80%) transparent;
-    font-size: 14px;
   }
 }
