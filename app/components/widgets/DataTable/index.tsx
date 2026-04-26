@@ -14,12 +14,14 @@ interface Props<T extends Record<string, DataType>> {
   identifier?: keyof T;
   data: Array<T>;
   columns: DataTableColumn<T>[];
+  emptyMessage?: string;
 }
 
 function DataTable<T extends Record<string, DataType>>({
   identifier = "id" as keyof T,
   data,
   columns,
+  emptyMessage = "No data found",
 }: Props<T>) {
   return (
     <div className="rounded overflow-hidden">
@@ -37,7 +39,7 @@ function DataTable<T extends Record<string, DataType>>({
               <TableCell colSpan={columns.length} className="h-64 text-center">
                 <div className="flex flex-col items-center gap-2 text-lg">
                   <EmptyIcon className="text-muted-foreground size-16" />
-                  No data found
+                  {emptyMessage}
                 </div>
               </TableCell>
             </TableRow>

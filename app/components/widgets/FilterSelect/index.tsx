@@ -6,21 +6,38 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { cn } from "~/lib/utils";
 
 interface Props {
   placeholder?: string;
   filterKey: string;
+  resetValue?: string;
   filters?: { label: string; value: string }[];
   className?: string;
+  clearOnSelect?: boolean;
 }
 
-function FilterSelect({ filters, placeholder, filterKey, className }: Props) {
-  const { updateSearchParams } = useUpdateSearchParams();
+function FilterSelect({
+  filters,
+  resetValue,
+  placeholder,
+  filterKey,
+  className,
+  clearOnSelect = false,
+}: Props) {
+  const { searchParams, updateSearchParams } = useUpdateSearchParams();
+
+  const value = clearOnSelect ? "" : searchParams[filterKey] || "";
 
   return (
     <Select
-      onValueChange={(value) => updateSearchParams({ [filterKey]: value })}
+      value={value}
+      onValueChange={(val) => {
+        if (val === resetValue) {
+          updateSearchParams({ [filterKey]: "" });
+        } else {
+          updateSearchParams({ [filterKey]: val });
+        }
+      }}
     >
       <SelectTrigger className={className}>
         <SelectValue placeholder={placeholder} />
