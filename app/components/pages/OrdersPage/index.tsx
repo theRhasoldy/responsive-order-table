@@ -1,22 +1,28 @@
+import { useMemo } from "react";
 import DataTable from "~/components/widgets/DataTable";
-import { orders } from "./_data";
+import { orders, type Order } from "./_data";
 import { columns } from "./_columns";
 import FilterSearchInput from "~/components/widgets/FilterSearchInput";
 import useUpdateSearchParams from "~/common/hooks/useUpdateSearchParams";
-import { useMemo } from "react";
 import FilterSelect from "~/components/widgets/FilterSelect";
 import { STATUS } from "~/common/constants/status";
+import FiltersList from "~/components/widgets/FiltersList";
+import {
+  getFilterLabels,
+  getSearchFilters,
+  getSupportedFilterKeys,
+  type FilterConfig,
+} from "~/lib/filters";
 
-const filters = [
-  {
-    label: "Id",
-    value: "id",
-  },
-  {
-    label: "Customer Name",
-    value: "customerName",
-  },
-];
+const FILTERS_CONFIG = {
+  id: { label: "Id" },
+  customerName: { label: "Customer Name" },
+  status: { label: "Status" },
+} as const satisfies FilterConfig;
+
+const SEARCH_FILTERS = getSearchFilters(FILTERS_CONFIG);
+const FILTER_LABELS = getFilterLabels(FILTERS_CONFIG);
+const SUPPORTED_FILTER_KEYS = getSupportedFilterKeys(FILTERS_CONFIG);
 
 function OrdersPage() {
   const { searchParams } = useUpdateSearchParams();
@@ -24,10 +30,20 @@ function OrdersPage() {
   const filteredData = useMemo(() => {
     return orders.filter((order) => {
       return Object.entries(searchParams).every(([key, value]) => {
-        return (
-          order[key as keyof typeof order].toString().toLowerCase() ==
-          value.toLowerCase()
-        );
+        if (!(SUPPORTED_FILTER_KEYS as string[]).includes(key)) {
+          return true;
+        }
+
+        const orderValue = order[key as keyof Order];
+
+        if (orderValue === undefined || orderValue === null) {
+          return false;
+        }
+
+        const normalizedValue = value.toLowerCase();
+        const normalizedOrderValue = orderValue.toString().toLowerCase();
+
+        return normalizedOrderValue.includes(normalizedValue);
       });
     });
   }, [searchParams]);
@@ -39,7 +55,7 @@ function OrdersPage() {
         <div className="flex gap-4 flex-wrap">
           <FilterSearchInput
             className="w-xl"
-            filters={filters}
+            filters={SEARCH_FILTERS}
             placeholder="Search orders"
           />
           <FilterSelect
@@ -50,6 +66,12 @@ function OrdersPage() {
               value: status.toLowerCase(),
             }))}
             placeholder="Filter by"
+          />
+        </div>
+        <div className="min-h-6">
+          <FiltersList
+            supportedKeys={SUPPORTED_FILTER_KEYS}
+            labels={FILTER_LABELS}
           />
         </div>
       </div>
