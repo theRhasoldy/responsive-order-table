@@ -8,6 +8,7 @@ import {
   TableRow,
 } from "~/components/ui/table";
 import type { DataTableColumn, DataType } from "./types";
+import { EmptyIcon } from "@phosphor-icons/react";
 
 interface Props<T extends Record<string, DataType>> {
   identifier?: keyof T;
@@ -31,23 +32,34 @@ function DataTable<T extends Record<string, DataType>>({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {data.map((row, index) => {
-            const rowValue = row[identifier];
-            const rowKey: Key =
-              typeof rowValue === "string" || typeof rowValue === "number"
-                ? rowValue
-                : index;
+          {data.length === 0 ? (
+            <TableRow className="hover:bg-background!">
+              <TableCell colSpan={columns.length} className="h-64 text-center">
+                <div className="flex flex-col items-center gap-2 text-lg">
+                  <EmptyIcon className="text-muted-foreground size-16" />
+                  No data found
+                </div>
+              </TableCell>
+            </TableRow>
+          ) : (
+            data.map((row, index) => {
+              const rowValue = row[identifier];
+              const rowKey: Key =
+                typeof rowValue === "string" || typeof rowValue === "number"
+                  ? rowValue
+                  : index;
 
-            return (
-              <TableRow key={rowKey}>
-                {columns.map((column) => (
-                  <TableCell key={column.accessorKey}>
-                    {column.cell({ row })}
-                  </TableCell>
-                ))}
-              </TableRow>
-            );
-          })}
+              return (
+                <TableRow key={rowKey}>
+                  {columns.map((column) => (
+                    <TableCell key={column.accessorKey}>
+                      {column.cell({ row })}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              );
+            })
+          )}
         </TableBody>
       </Table>
     </div>
