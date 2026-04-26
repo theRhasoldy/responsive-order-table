@@ -31,6 +31,8 @@ function FilterSearchInput({ filters, placeholder, className }: Props) {
     updateSearchParams({
       [selectedFilter]: formData.get("value")?.toString() || "",
     });
+
+    e.target.reset();
   }
 
   return (
